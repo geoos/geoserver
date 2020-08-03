@@ -1,0 +1,6 @@
+// GEOOS Sample config file for raster files importing and publishing
+{
+    provider:{
+        code:"my-name", name:"Me as a provider"
+    }
+}

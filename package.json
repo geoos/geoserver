@@ -1,0 +1,31 @@
+{
+  "name": "provider",
+  "version": "1.0.0",
+  "description": "GEOOS Layer data Provider",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --watch ./lib --watch ./index.js --inspect=0.0.0.0:9231 --nolazy ./index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geoos/provider.git"
+  },
+  "keywords": [
+    "geoos"
+  ],
+  "author": "Jota",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geoos/provider/issues"
+  },
+  "homepage": "https://github.com/geoos/provider#readme",
+  "dependencies": {
+    "hjson": "^3.2.1",
+    "moment-timezone": "^0.5.31"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
