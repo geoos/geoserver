@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "provider",
+            "name": "Attach Integrator",
             "port": 9231,
             "request": "attach",
             "skipFiles": [
