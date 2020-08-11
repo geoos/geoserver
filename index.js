@@ -2,5 +2,5 @@ const log = require("./lib/Logs")
 const importer = require("./lib/Importer")
 
 importer.init();
-log.info("GEOOS Provider initialized");
-console.log("GEOOS Provider is Running")
+log.info("GEOOS GEOServer initialized");
+console.log("GEOOS GEOServer is Running")
