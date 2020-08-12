@@ -1,7 +1,6 @@
 class PointsVisualizer extends KonvaLeafletVisualizer {
     constructor(options) {
-        super();
-        this.options = options || {};
+        super(options);
         this.points = [];
     }
 

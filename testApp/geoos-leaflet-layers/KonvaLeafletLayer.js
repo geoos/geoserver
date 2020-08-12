@@ -64,7 +64,13 @@ class KonvaLeafletLayer {
         this.konvaStage.width(p1.x - p0.x);
         this.konvaStage.height(p1.y - p0.y);
         this._dx = p0.x; this._dy = p0.y;
-        this.visualizers.forEach(v => v.visualizer.update());
+        this.visualizers.forEach(v => {
+            let ret = v.visualizer.beforeUpdate();
+            if (ret !== false) {
+                v.visualizer.update()
+                v.visualizer.afterUpdate()
+            }
+        })
     }
     addVisualizer(id, visualizer) {
         this.visualizers.push({id:id, visualizer:visualizer});
@@ -90,7 +96,8 @@ class KonvaLeafletLayer {
 }
 
 class KonvaLeafletVisualizer {
-    constructor() {
+    constructor(options) {
+        this.options = options || {}
         this.konvaLayer = new Konva.Layer();
         this.stageLayer = null; // assigned in "addVisualizer"
     }
@@ -106,6 +113,12 @@ class KonvaLeafletVisualizer {
 
     destroy() {
         this.konvaLayer.destroy()
+    }
+    beforeUpdate() {
+        if (this.options.onBeforeUpdate) this.options.onBeforeUpdate();
+    }
+    afterUpdate() {
+        if (this.options.onAfterUpdate) this.options.onAfterUpdate();
     }
     update() {
         console.log("visualizer update not overwritten");

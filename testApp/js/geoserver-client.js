@@ -51,10 +51,30 @@ class GEOServerClient {
         return this.metadata;
     }
 
+    formatValue(dataSetCode, varCode, value, includeUnit = true) {
+        let dataSet = this.metadata.dataSets.find(ds => ds.code == dataSetCode);
+        if (!dataSet) throw "DataSet '" + dataSetCode + "' not found"
+        let variable = dataSet.variables.find(v => v.code == varCode);
+        if (!variable) throw "Variable '" + varCode + "' not found in DataSet '" + dataSetCode + "'"
+        let decimals = variable.options.decimals || 2
+        let pow = Math.pow(10, decimals);
+        let txt = Math.floor(value * pow) / pow + "";
+        if (includeUnit) txt += "[" + variable.unit + "]";
+        return txt;
+    }
+
     valueAtPoint(dataSetCode, varCode, time, lat, lng) {
         let controller = new AbortController();
         return {
             promise:this._getJSON(dataSetCode + "/" + varCode + "/valueAtPoint", {time, lat, lng}, controller.signal),
+            controller:controller
+        }
+    }
+
+    isolines(dataSetCode, varCode, time, n, w, s, e) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e}, controller.signal),
             controller:controller
         }
     }
