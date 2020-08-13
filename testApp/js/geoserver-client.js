@@ -78,4 +78,11 @@ class GEOServerClient {
             controller:controller
         }
     }
+    isobands(dataSetCode, varCode, time, n, w, s, e) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e}, controller.signal),
+            controller:controller
+        }
+    }
 }

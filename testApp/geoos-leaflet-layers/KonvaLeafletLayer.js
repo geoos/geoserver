@@ -77,6 +77,7 @@ class KonvaLeafletLayer {
         visualizer.stageLayer = this;
         this.konvaStage.add(visualizer.konvaLayer);
         visualizer.update();
+        this.reorderVisualizers()
     }
     getVisualizer(id) {
         let v = this.visualizers.find(v => v.id == id);
@@ -87,11 +88,17 @@ class KonvaLeafletLayer {
         if (idx >= 0) {
             this.visualizers[idx].visualizer.destroy();
             this.visualizers.splice(idx, 1);
+            this.reorderVisualizers()
         }
     }
     clear() {
         this.visualizers.forEach(v => v.visualizer.destroy())
         this.visualizers = [];
+        this.konvaStage.draw()
+    }
+    reorderVisualizers() {
+        this.visualizers.sort((v1, v2) => (v1.visualizer.zIndex - v2.visualizer.zIndex))
+        this.visualizers.forEach((v, i) => v.visualizer.konvaLayer.zIndex(i));
     }
 }
 
@@ -102,6 +109,7 @@ class KonvaLeafletVisualizer {
         this.stageLayer = null; // assigned in "addVisualizer"
     }
     get map() {return this.stageLayer.map}
+    get zIndex() {return this.options.zIndex !== undefined?this.options.zIndex:0}
 
     toCanvas(mapPoint) {
         let p = this.map.latLngToLayerPoint(mapPoint);
