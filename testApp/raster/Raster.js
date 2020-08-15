@@ -14,6 +14,9 @@ class Raster extends ZCustomController {
         $(this.iconIsobands.view).popover({
             trigger:"focus", html:true, title:_ => (self.iconIsobands.popTitle), content:_ => (self.iconIsobands.popHtml)
         })
+        $(this.iconShader.view).popover({
+            trigger:"focus", html:true, title:_ => (self.iconShader.popTitle), content:_ => (self.iconShader.popHtml)
+        })
     }
 
     onThis_activated() {
@@ -33,6 +36,10 @@ class Raster extends ZCustomController {
         if (this.isobandsAborter) {
             this.isobandsAborter.abort();
             this.isobandsAborter = null;
+        }
+        if (this.shaderAborter) {
+            this.shaderAborter.abort();
+            this.isobshaderAborterandsAborter = null;
         }
         this.konvaLeafletLayer.removeFrom(this.map);
     }
@@ -57,6 +64,8 @@ class Raster extends ZCustomController {
         this.iconIsolines.hide()
         this.edIsobands.checked = false;
         this.iconIsobands.hide();
+        this.edShader.checked = false;
+        this.iconShader.hide();
 
         let v = this.dataSet.variables.find(v => v.code == this.edVariable.value);
         if (v.queries.includes("valueAtPoint")) this.pointWatcher.show();
@@ -65,6 +74,8 @@ class Raster extends ZCustomController {
         else this.isonlines.hide();
         if (v.queries.includes("isobands")) this.isobands.show();
         else this.isonlines.hide();
+        if (v.queries.includes("grid")) this.shader.show();
+        else this.shader.hide();
     }
 
     onTime_change() {
@@ -82,6 +93,7 @@ class Raster extends ZCustomController {
         if (this.edPointWatcher.checked) this.refreshPointWatcher();
         if (this.edIsolines.checked) this.refreshIsolines();
         if (this.edIsobands.checked) this.refreshIsobands();
+        if (this.edShader.checked) this.refreshShader();
     }
 
     setIconStatus(icon, status, popTitle, popContent) {
@@ -217,7 +229,7 @@ class Raster extends ZCustomController {
         this.isolinesAborter = controller;
         promise.then(ret => {
             this.isolinesAborter = null;
-            visualizer.setGeoJson(ret.geoJson, ret.markers);
+            visualizer.setGeoJson(ret.geoJson, ret.markers.length < 1000?ret.markers:null);
             this.setIconStatus(this.iconIsolines, "info", "Isolines", ret)
         }).catch(err => {
             this.isolinesAborter = null;
@@ -280,6 +292,57 @@ class Raster extends ZCustomController {
                 this.iconIsobands.hide()
             }
             visualizer.setGeoJson(null);
+        })
+    }
+
+    // Shader
+    onEdShader_change() {
+        if (this.edShader.checked) {
+            this.konvaLeafletLayer.addVisualizer("shader", new ShaderVisualizer({
+                zIndex:2,
+                onBeforeUpdate: _ => {this.refreshShader(); return false},
+                pointColor: value => {
+                    let color = "rgba(0,0,0,0)"
+                    if (value !== undefined && value >= this.shaderMetadata.min && value <= this.shaderMetadata.max) {
+                        let v = (value - this.shaderMetadata.min) / (this.shaderMetadata.max - this.shaderMetadata.min);
+                        let hue=((1-v)*120).toString(10);
+                        color = ["hsla(",hue,",100%,50%,0.7)"].join("");
+                    }
+                    return color;
+                }
+            }));
+            this.refreshShader();
+        } else {
+            if (this.shaderAborter) {
+                this.shaderAborter.abort();
+                this.shaderAborter = null;
+            }
+            this.konvaLeafletLayer.removeVisualizer("shader");
+            this.iconShader.hide();
+        }
+    }
+
+    refreshShader() {
+        this.setIconStatus(this.iconShader, "working")
+        if (this.shaderAborter) this.shaderAborter.abort();
+        let visualizer = this.konvaLeafletLayer.getVisualizer("shader");
+        let b = this.map.getBounds();
+        let {promise, controller} = this.geoServer.grid(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast());
+        this.shaderAborter = controller;
+        promise.then(ret => {
+            this.shaderAborter = null;
+            this.shaderMetadata = ret;
+            visualizer.setGridData(ret.foundBox, ret.rows);
+            this.setIconStatus(this.iconShader, "info", "Shader", ret)
+        }).catch(err => {
+            this.shaderAborter = null;
+            if (err != "aborted") {
+                console.error(err);
+                this.setIconStatus(this.iconShader, "error", "Shader", "Error:" + err)
+            } else {
+                this.iconShader.hide()
+            }
+            visualizer.setGridData(null, null);
         })
     }
 }

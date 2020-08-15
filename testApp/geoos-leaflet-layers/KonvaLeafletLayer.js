@@ -52,6 +52,7 @@ class KonvaLeafletLayer {
         this.doUpdate();
     }
     onRemove() {
+        this.visualizers.forEach(v => v.visualizer.destroy())
         this.konvaStage.destroy();
         this.visualizers = [];
         L.DomUtil.remove(this.container);
@@ -76,6 +77,7 @@ class KonvaLeafletLayer {
         this.visualizers.push({id:id, visualizer:visualizer});
         visualizer.stageLayer = this;
         this.konvaStage.add(visualizer.konvaLayer);
+        visualizer.onAttached();
         visualizer.update();
         this.reorderVisualizers()
     }
@@ -110,6 +112,8 @@ class KonvaLeafletVisualizer {
     }
     get map() {return this.stageLayer.map}
     get zIndex() {return this.options.zIndex !== undefined?this.options.zIndex:0}
+    get width() {return this.stageLayer.konvaStage.width()}
+    get height() {return this.stageLayer.konvaStage.height()}
 
     toCanvas(mapPoint) {
         let p = this.map.latLngToLayerPoint(mapPoint);
@@ -118,6 +122,8 @@ class KonvaLeafletVisualizer {
     toMap(point) {
         return this.map.layerPointToLatLng({x:point.x + this.stageLayer._dx, y:point.y + this.stageLayer._dy})
     }
+
+    onAttached() {}
 
     destroy() {
         this.konvaLayer.destroy()
