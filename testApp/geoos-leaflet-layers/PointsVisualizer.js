@@ -98,5 +98,6 @@ class PointsVisualizer extends KonvaLeafletVisualizer {
             elements.forEach(e => this.konvaLayer.add(e))            
         })
         this.konvaLayer.draw()
+        super.update();
     }
 }

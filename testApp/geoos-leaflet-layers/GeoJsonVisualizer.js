@@ -47,6 +47,7 @@ class GeoJsonVisualizer extends KonvaLeafletVisualizer {
             })
         }
         this.konvaLayer.draw()
+        super.update();
     }
 
     addGeoElements(f, geometry) {

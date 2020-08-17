@@ -90,15 +90,16 @@ class ShaderVisualizer extends KonvaCanvasVisualizer {
         super.destroy();
     }
 
-    setGridData(box, rows) {
+    setGridData(box, rows, nrows, ncols) {
         this.box = box;
         this.rows = rows;
+        this.nrows = nrows;
+        this.ncols = ncols;
         this.update();
     }
     paintCanvas() {
         if (!this.box || !this.rows) return;
-        const ncols = (this.box.lng1 - this.box.lng0) / this.box.dLng;
-        const nrows = (this.box.lat1 - this.box.lat0) / this.box.dLat;
+        const nrows = this.nrows, ncols = this.ncols;
         const rows = this.rows;
         const bounds = this.map.getBounds();
         let p0 = this.toCanvas([bounds.getSouth(), bounds.getWest()]);
@@ -108,15 +109,12 @@ class ShaderVisualizer extends KonvaCanvasVisualizer {
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.depthMask(false);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-        let colorsCanvas = document.createElement("CANVAS");
-        colorsCanvas.width = 5; colorsCanvas.height = 5;
-        let ctxColors = colorsCanvas.getContext("2d");
         let vertexPositions = [], indexes = [], vertexColors = [];
         let pointIndex = {};  // {iRow-iCol:int}
         for (let iRow=nrows-1, lat=this.box.lat1 - this.box.dLat; iRow>=0; iRow--, lat -= this.box.dLat) {
@@ -126,16 +124,19 @@ class ShaderVisualizer extends KonvaCanvasVisualizer {
                 if (v !== null) {
                     let p = this.toCanvas({lat, lng})
                     let x = (p.x - p0.x) / (p1.x - p0.x) * 2 - 1;
-                    let y = (p0.y - p.y) / (p0.y - p1.y) * 2 - 1;
+                    let y = (p.y - p0.y) / (p1.y - p0.y) * 2 - 1;
                     pointIndex[key] = vertexPositions.length / 2;
-                    vertexPositions.push(x, y);
-                    ctxColors.clearRect(0, 0, 5, 5);
+                    vertexPositions.push(x, y);                    
                     let color = this.getColor(v, lat, lng);
-                    ctxColors.fillStyle = color;
-                    ctxColors.fillRect(0, 0, 5, 5);
-                    let pix = ctxColors.getImageData(0, 0, 1, 1).data;
-                    let [r,g,b,a] = pix;
+                    let colors = parseColor(color);
+                    while (colors.length < 4) colors.push(255);                    
+                    let [r,g,b,a] = colors;
+                    if (typeof a == "string" && a.indexOf(".") >= 0) {
+                        a = parseFloat(a);
+                        if (a <= 1) a *= 255;
+                    } 
                     vertexColors.push(r/255, g/255, b/255, a/255);
+
                 }
                 if (iRow < (nrows - 1) && iCol > 0) {
                     let keySE = key, idxSE = pointIndex[keySE], existeSE = idxSE !== undefined;

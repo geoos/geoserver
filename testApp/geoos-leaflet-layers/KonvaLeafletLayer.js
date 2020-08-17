@@ -26,12 +26,13 @@ class KonvaLeafletLayer {
         let paneName = "geoos" + this.uniqueId;
         map.createPane(paneName);
         //map.getPane(paneName).style.pointerEvents = "none";
-        map.getPane(paneName).style.zIndex = zIndex;
+        map.getPane(paneName).style.zIndex = "" + zIndex;
         this.leafletLayer = new L.KonvaCustomLayer({wrapper:this, pane:paneName});
         this.visualizers = []
     }
     get lOptions() {return this.leafletLayer.options}
     get lPane() {return this.map.getPane(this.lOptions.pane)}
+    get canvas() {return this.container.querySelector("canvas")}
 
     addTo(map) {
         this.leafletLayer.addTo(map);
@@ -61,17 +62,15 @@ class KonvaLeafletLayer {
         let bounds = this.map.getBounds();
         let p0 = this.map.latLngToLayerPoint(bounds.getNorthWest());
         let p1 = this.map.latLngToLayerPoint(bounds.getSouthEast());        
-        L.DomUtil.setPosition(this.container, p0);
         this.konvaStage.width(p1.x - p0.x);
         this.konvaStage.height(p1.y - p0.y);
         this._dx = p0.x; this._dy = p0.y;
-        this.visualizers.forEach(v => {
-            let ret = v.visualizer.beforeUpdate();
-            if (ret !== false) {
-                v.visualizer.update()
-                v.visualizer.afterUpdate()
-            }
-        })
+        this.visualizers.forEach(v => v.visualizer.doUpdate());        
+    }
+    visualizerUpdated() {        
+        let bounds = this.map.getBounds();
+        let p0 = this.map.latLngToLayerPoint(bounds.getNorthWest());
+        L.DomUtil.setPosition(this.container, p0);
     }
     addVisualizer(id, visualizer) {
         this.visualizers.push({id:id, visualizer:visualizer});
@@ -128,13 +127,18 @@ class KonvaLeafletVisualizer {
     destroy() {
         this.konvaLayer.destroy()
     }
+    doUpdate() {
+        if (this.beforeUpdate() != false) {
+            this.update();
+        }
+    }
     beforeUpdate() {
-        if (this.options.onBeforeUpdate) this.options.onBeforeUpdate();
+        if (this.options.onBeforeUpdate) return this.options.onBeforeUpdate();
     }
     afterUpdate() {
-        if (this.options.onAfterUpdate) this.options.onAfterUpdate();
+        if (this.options.onAfterUpdate) return this.options.onAfterUpdate();
     }
     update() {
-        console.log("visualizer update not overwritten");
+        this.stageLayer.visualizerUpdated();
     }
 }

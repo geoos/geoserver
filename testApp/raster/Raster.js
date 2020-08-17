@@ -306,7 +306,7 @@ class Raster extends ZCustomController {
                     if (value !== undefined && value >= this.shaderMetadata.min && value <= this.shaderMetadata.max) {
                         let v = (value - this.shaderMetadata.min) / (this.shaderMetadata.max - this.shaderMetadata.min);
                         let hue=((1-v)*120).toString(10);
-                        color = ["hsla(",hue,",100%,50%,0.7)"].join("");
+                        color = ["hsla(",hue,",100%,50%, 0.7)"].join("");
                     }
                     return color;
                 }
@@ -327,12 +327,17 @@ class Raster extends ZCustomController {
         if (this.shaderAborter) this.shaderAborter.abort();
         let visualizer = this.konvaLeafletLayer.getVisualizer("shader");
         let b = this.map.getBounds();
-        let {promise, controller} = this.geoServer.grid(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast());
+        let {promise, controller} = this.geoServer.grid(
+            this.dataSet.code, this.edVariable.value, 
+            this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(),
+            1
+        );
         this.shaderAborter = controller;
         promise.then(ret => {
+            console.log("ret", ret);
             this.shaderAborter = null;
             this.shaderMetadata = ret;
-            visualizer.setGridData(ret.foundBox, ret.rows);
+            visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
             this.setIconStatus(this.iconShader, "info", "Shader", ret)
         }).catch(err => {
             this.shaderAborter = null;
@@ -342,7 +347,7 @@ class Raster extends ZCustomController {
             } else {
                 this.iconShader.hide()
             }
-            visualizer.setGridData(null, null);
+            visualizer.setGridData(null, null, null, null);
         })
     }
 }
