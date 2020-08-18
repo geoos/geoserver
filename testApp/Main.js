@@ -45,6 +45,7 @@ class Main extends ZCustomController {
     async refreshDataSets() {
         let providers = JSON.parse(JSON.stringify(this.geoServer.metadata.providers));
         this.geoServer.metadata.dataSets.forEach(ds => {
+            ds._class = "bg-light text-dark"
             let p = providers.find(p => p.code == ds.provider);
             if (p) {
                 if (!p.dataSets) p.dataSets = []

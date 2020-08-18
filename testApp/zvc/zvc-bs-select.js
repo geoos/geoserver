@@ -14,7 +14,7 @@ class ZBSSelect extends ZDynamicSelect {
         tree.forEach(group => {
             opts += "<optgroup label='" + group[groupLabelField] + "'>";
             group[groupRowsField].forEach(row => {                
-                opts += "<option " + (row[this.idField] == selectedId?" selected":"") + " value='" + this.rows.length + "'>";
+                opts += "<option " + (row[this.idField] == selectedId?" selected":"") + " value='" + this.rows.length + "' " + (row._class?" class='" + row._class + "'":"") + ">";
                 let lbl = window.toLang?window.toLang(row[this.labelField]):row[this.labelField];
                 opts += lbl;
                 opts += "</option>";

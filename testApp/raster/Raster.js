@@ -17,6 +17,9 @@ class Raster extends ZCustomController {
         $(this.iconShader.view).popover({
             trigger:"focus", html:true, title:_ => (self.iconShader.popTitle), content:_ => (self.iconShader.popHtml)
         })
+        $(this.iconVectors.view).popover({
+            trigger:"focus", html:true, title:_ => (self.iconVectors.popTitle), content:_ => (self.iconVectors.popHtml)
+        })
     }
 
     onThis_activated() {
@@ -39,7 +42,11 @@ class Raster extends ZCustomController {
         }
         if (this.shaderAborter) {
             this.shaderAborter.abort();
-            this.isobshaderAborterandsAborter = null;
+            this.shaderAborter = null;
+        }
+        if (this.vectorsAborter) {
+            this.vectorsAborter.abort();
+            this.vectorsAborter = null;
         }
         this.konvaLeafletLayer.removeFrom(this.map);
     }
@@ -52,10 +59,32 @@ class Raster extends ZCustomController {
     onEdVariable_change() {this.refreshQueries()}
 
     refreshQueries() {        
-        console.log("DataSet", this.dataSet)
         if (this.pointWatcherAborter) {
             this.pointWatcherAborter.abort();
             this.pointWatcherAborter = null;
+        }
+        if (this.isolinesAborter) {
+            this.isolinesAborter.abort();
+            this.isolinesAborter = null;
+        }
+        if (this.isobandsAborter) {
+            this.isobandsAborter.abort();
+            this.isobandsAborter = null;
+        }
+        if (this.shaderAborter) {
+            this.shaderAborter.abort();
+            this.shaderAborter = null;
+        }
+        if (this.vectorsAborter) {
+            this.vectorsAborter.abort();
+            this.vectorsAborter = null;
+        }
+        let variable = this.dataSet.variables.find(v => v.code == this.edVariable.value);
+        if (variable && variable.levels && variable.levels.length > 1) {
+            this.edLevel.setRows(variable.levels.map((l, i) => ({index:i, name:l})))
+            this.edLevel.show();
+        } else {
+            this.edLevel.hide();
         }
         this.konvaLeafletLayer.clear();
         this.edPointWatcher.checked= false;
@@ -66,6 +95,8 @@ class Raster extends ZCustomController {
         this.iconIsobands.hide();
         this.edShader.checked = false;
         this.iconShader.hide();
+        this.edVectors.checked = false;
+        this.iconVectors.hide();
 
         let v = this.dataSet.variables.find(v => v.code == this.edVariable.value);
         if (v.queries.includes("valueAtPoint")) this.pointWatcher.show();
@@ -76,6 +107,12 @@ class Raster extends ZCustomController {
         else this.isonlines.hide();
         if (v.queries.includes("grid")) this.shader.show();
         else this.shader.hide();
+        if (v.queries.includes("vectorsGrid")) this.vectors.show();
+        else this.vectors.hide();
+    }
+
+    async onEdLevel_change() {
+        await this.refresActiveVisualizers()
     }
 
     onTime_change() {
@@ -94,6 +131,7 @@ class Raster extends ZCustomController {
         if (this.edIsolines.checked) this.refreshIsolines();
         if (this.edIsobands.checked) this.refreshIsobands();
         if (this.edShader.checked) this.refreshShader();
+        if (this.edVectors.checked) this.refreshVectors();
     }
 
     setIconStatus(icon, status, popTitle, popContent) {
@@ -179,7 +217,7 @@ class Raster extends ZCustomController {
         monitorPoint.watching[0].label = variable.name + ": ...";
         monitorPoint.watching[0].color = "orange";
         visualizer.update();
-        let {promise, controller} = this.geoServer.valueAtPoint(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), monitorPoint.lat, monitorPoint.lng);
+        let {promise, controller} = this.geoServer.valueAtPoint(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), monitorPoint.lat, monitorPoint.lng, this.edLevel.value);
         this.pointWatcherAborter = controller;
         promise.then(ret => {
             this.pointWatcherAborter = null;
@@ -225,7 +263,7 @@ class Raster extends ZCustomController {
         if (this.isolinesAborter) this.isolinesAborter.abort();
         let visualizer = this.konvaLeafletLayer.getVisualizer("isolines");
         let b = this.map.getBounds();
-        let {promise, controller} = this.geoServer.isolines(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast());
+        let {promise, controller} = this.geoServer.isolines(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(), this.edLevel.value);
         this.isolinesAborter = controller;
         promise.then(ret => {
             this.isolinesAborter = null;
@@ -276,7 +314,7 @@ class Raster extends ZCustomController {
         if (this.isobandsAborter) this.isobandsAborter.abort();
         let visualizer = this.konvaLeafletLayer.getVisualizer("isobands");
         let b = this.map.getBounds();
-        let {promise, controller} = this.geoServer.isobands(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast());
+        let {promise, controller} = this.geoServer.isobands(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(), this.edLevel.value);
         this.isobandsAborter = controller;
         promise.then(ret => {
             this.bandsAborter = null;
@@ -329,12 +367,11 @@ class Raster extends ZCustomController {
         let b = this.map.getBounds();
         let {promise, controller} = this.geoServer.grid(
             this.dataSet.code, this.edVariable.value, 
-            this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(),
-            1
+            this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(),            
+            1, this.edLevel.value            
         );
         this.shaderAborter = controller;
         promise.then(ret => {
-            console.log("ret", ret);
             this.shaderAborter = null;
             this.shaderMetadata = ret;
             visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
@@ -348,6 +385,64 @@ class Raster extends ZCustomController {
                 this.iconShader.hide()
             }
             visualizer.setGridData(null, null, null, null);
+        })
+    }
+
+    // Shader
+    onEdVectors_change() {
+        if (this.edVectors.checked) {
+            this.konvaLeafletLayer.addVisualizer("vectors", new VectorsVisualizer({
+                zIndex:4,
+                onBeforeUpdate: _ => {this.refreshVectors(); return false},
+                vectorColor: value => {
+                    return "black"
+                    /*
+                    let color = "rgba(0,0,0,0)"
+                    if (value !== undefined && value >= this.vectorsMetadata.min && value <= this.vectorsMetadata.max) {
+                        let v = (value - this.vectorsMetadata.min) / (this.vectorsMetadata.max - this.vectorsMetadata.min);
+                        let hue=((1-v)*120).toString(10);
+                        color = ["hsla(",hue,",100%,50%, 0.7)"].join("");
+                    }
+                    return color;
+                    */
+                }
+            }));
+            this.refreshVectors();
+        } else {
+            if (this.vectorsAborter) {
+                this.vectorsAborter.abort();
+                this.vectorsAborter = null;
+            }
+            this.konvaLeafletLayer.removeVisualizer("vectors");
+            this.iconVectors.hide();
+        }
+    }
+
+    refreshVectors() {
+        this.setIconStatus(this.iconVectors, "working")
+        if (this.vectorsAborter) this.vectorsAborter.abort();
+        let visualizer = this.konvaLeafletLayer.getVisualizer("vectors");
+        let b = this.map.getBounds();
+        let {promise, controller} = this.geoServer.vectorsGrid(
+            this.dataSet.code, this.edVariable.value, 
+            this.time.value.valueOf(), b.getNorth(), b.getWest(), b.getSouth(), b.getEast(),
+            1, this.edLevel.value
+        );
+        this.vectorsAborter = controller;
+        promise.then(ret => {
+            this.vectorsAborter = null;
+            this.vectorsMetadata = ret;
+            visualizer.setVectorData(ret.foundBox, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);
+            this.setIconStatus(this.iconVectors, "info", "Vectors", ret)
+        }).catch(err => {
+            this.vectorsAborter = null;
+            if (err != "aborted") {
+                console.error(err);
+                this.setIconStatus(this.iconVectors, "error", "Vectors", "Error:" + err)
+            } else {
+                this.iconVectors.hide()
+            }
+            visualizer.setVectorData(null, null, null, null, null);
         })
     }
 }

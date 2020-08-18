@@ -63,32 +63,39 @@ class GEOServerClient {
         return txt;
     }
 
-    valueAtPoint(dataSetCode, varCode, time, lat, lng) {
+    valueAtPoint(dataSetCode, varCode, time, lat, lng, level) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/valueAtPoint", {time, lat, lng}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/valueAtPoint", {time, lat, lng, level}, controller.signal),
             controller:controller
         }
     }
 
-    isolines(dataSetCode, varCode, time, n, w, s, e) {
+    isolines(dataSetCode, varCode, time, n, w, s, e, level) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e, level}, controller.signal),
             controller:controller
         }
     }
-    isobands(dataSetCode, varCode, time, n, w, s, e) {
+    isobands(dataSetCode, varCode, time, n, w, s, e, level) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e, level}, controller.signal),
             controller:controller
         }
     }
-    grid(dataSetCode, varCode, time, n, w, s, e, margin) {
+    grid(dataSetCode, varCode, time, n, w, s, e, margin, level) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/grid", {time, n, w ,s, e, margin}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/grid", {time, n, w ,s, e, margin, level}, controller.signal),
+            controller:controller
+        }
+    }
+    vectorsGrid(dataSetCode, varCode, time, n, w, s, e, margin) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/vectorsGrid", {time, n, w ,s, e, margin}, controller.signal),
             controller:controller
         }
     }
