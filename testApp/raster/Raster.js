@@ -217,7 +217,9 @@ class Raster extends ZCustomController {
         monitorPoint.watching[0].label = variable.name + ": ...";
         monitorPoint.watching[0].color = "orange";
         visualizer.update();
-        let {promise, controller} = this.geoServer.valueAtPoint(this.dataSet.code, this.edVariable.value, this.time.value.valueOf(), monitorPoint.lat, monitorPoint.lng, this.edLevel.value);
+        let time;
+        if (this.dataSet.temporality != "none") time = this.time.value.valueOf()
+        let {promise, controller} = this.geoServer.valueAtPoint(this.dataSet.code, this.edVariable.value, time, monitorPoint.lat, monitorPoint.lng, this.edLevel.value);
         this.pointWatcherAborter = controller;
         promise.then(ret => {
             this.pointWatcherAborter = null;

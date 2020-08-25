@@ -67,6 +67,9 @@ class Main extends ZCustomController {
             case "raster":
                 await this.dsLoader.load("./raster/Raster", {dataSet:dataSet, geoServer:this.geoServer, map:this.mapPanel.map})
                 break;
+            case "vector":
+                await this.dsLoader.load("./vector/Vector", {dataSet:dataSet, geoServer:this.geoServer, map:this.mapPanel.map})
+                break;
             default: this.showError("DataSet type '" + dataSet.type + "' not handled");
         }
     }

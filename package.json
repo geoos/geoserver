@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/geoos/provider#readme",
   "dependencies": {
+    "@turf/turf": "^5.1.6",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "geojson-vt": "^3.2.1",
     "hjson": "^3.2.1",
     "moment-timezone": "^0.5.31"
   },

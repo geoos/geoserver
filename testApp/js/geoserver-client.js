@@ -63,6 +63,8 @@ class GEOServerClient {
         return txt;
     }
 
+
+    // Raster
     valueAtPoint(dataSetCode, varCode, time, lat, lng, level) {
         let controller = new AbortController();
         return {
@@ -96,6 +98,29 @@ class GEOServerClient {
         let controller = new AbortController();
         return {
             promise:this._getJSON(dataSetCode + "/" + varCode + "/vectorsGrid", {time, n, w ,s, e, margin}, controller.signal),
+            controller:controller
+        }
+    }
+
+    // GeoJson
+    fileMetadata(dataSetCode, fileName, time) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/metadata", {time}, controller.signal),
+            controller:controller
+        }
+    }
+    fileGeoJson(dataSetCode, fileName, time) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/geoJson", {time}, controller.signal),
+            controller:controller
+        }
+    }
+    fileGeoJsonTile(dataSetCode, fileName, time, z, x, y) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/tile/" + z + "/" + x + "/" + y, {time:time?time:0}, controller.signal),
             controller:controller
         }
     }

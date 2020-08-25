@@ -1,5 +1,5 @@
-<div class="d-flex flex-row h-100 ">
-    <div class="h-100 d-flex flex-column" style="flex: 0 0 300px; ">
+<div class="d-flex flex-row h-100 " style="max-height: 100%;">
+    <div class="h-100 d-flex flex-column" style="flex: 0 0 300px; max-height: 100%;">
         <div class="m-1 border rounded" style="flex:0 0 1; background-color: rgb(247, 247, 247);">
             <div id="working" style="position: absolute; left:240px; top:20px;">
                 <i class="text-dark fas fa-spin fa-spinner fa-2x"></i>
@@ -9,7 +9,7 @@
                 <span id="serverName" style="align-self: flex-end;">Not Connected to GEOS Server</span>
             </div>
         </div>
-        <div class="m-1 border rounded bg-light p-2" style="flex:1 0 auto; font-size: 80%;">
+        <div class="m-1 border rounded bg-light p-2 d-flex flex-column" style="flex:1 0 auto; font-size: 80%;">
             <div id="errorMessageContainer" class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle mr-2 float-left mt-1"></i>
                 <div id="errorMessage">Mensaje de Error</div>
@@ -24,8 +24,8 @@
                     <select id="edDataSet" class="selectpicker show-tick" data-style="btn btn-sm btn-outline-secondary" data-width="100%" data-z-id-field="code" data-z-label-field="name"></select>
                 </div>
             </div>
-            <div id="dsLoader" data-z-load="./Empty"></div>
+            <div id="dsLoader" class="d-flex flex-column" data-z-load="./Empty" style="flex:1 0 auto;"></div>
         </div>
     </div>
-    <div id="mapPanel" class="m-1 border rounded bg-light" style="flex:1 0 auto; " data-z-component="./map/Map"></div>
+    <div id="mapPanel" class="m-1 border rounded bg-light d-flex flex-column" style="flex:1 0 auto; " data-z-component="./map/Map"></div>
 </div>
