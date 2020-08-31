@@ -1,5 +1,6 @@
 class Main extends ZCustomController {
     onThis_init() {
+        this.collapsed.hide();
         this.hideError();
         this.hideWorking();
         let url = document.location.href;
@@ -43,6 +44,10 @@ class Main extends ZCustomController {
     }
 
     async refreshDataSets() {
+        if (!this.geoServer.metadata.providers || !this.geoServer.metadata.providers.length || !this.geoServer.metadata.dataSets || !this.geoServer.metadata.dataSets.length) {
+            this.showError("No datasets defined in config.hjson");
+            return;
+        }
         let providers = JSON.parse(JSON.stringify(this.geoServer.metadata.providers));
         this.geoServer.metadata.dataSets.forEach(ds => {
             ds._class = "bg-light text-dark"
@@ -72,6 +77,25 @@ class Main extends ZCustomController {
                 break;
             default: this.showError("DataSet type '" + dataSet.type + "' not handled");
         }
+    }
+
+    onCollapse_click() {
+        console.log("collapse");
+        this.collapsed.show();
+        this.leftTop.hide();
+        this.leftBottom.view.classList.remove("d-flex");
+        this.leftBottom.hide();
+        this.left.view.style.flex = "0 0 40px"
+        this.mapPanel.resized();
+    }
+    onExpand_click() {
+        console.log("expand");
+        this.leftTop.show();
+        this.leftBottom.view.classList.add("d-flex");
+        this.leftBottom.show();
+        this.collapsed.hide();
+        this.left.view.style.flex = "0 0 300px"
+        this.mapPanel.resized();
     }
 }
 

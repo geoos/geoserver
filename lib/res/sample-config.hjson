@@ -1,6 +1,42 @@
-// GEOOS Sample config file for raster files importing and publishing
+#
+# GEOOS Sample config file for importing and publishing geospatial data
+#
+# Directories '/home/config' (where this file resides), '/home/www' and '/home/data' are
+# mapped to your host machine's file system, as volumes in docker contaier. If you run more 
+# than one service, as data downloaders (noaa-gfs4, for example), consider creating a docker
+# swarm stack. See documentaton at https://github.com/geoos/swarm-examples
+#
 {
-    provider:{
-        code:"my-name", name:"Me as a provider"
+    ## This Server Description
+    thisGeoServer:{
+        code: geoos-server-1
+        name: My GEOOS Geo-Server
+        publicURL: http://localhost:8080
+        # Test web server will be accesible in ${publicURL}/test
+        enableTestWebServer: true
+    }
+
+    ## Web server to publish REST Services and Web Content to GEOOS Server, Browsers and other client applications
+    webServer:{
+        protocol:"http", port:8080
+        # keyFile and certFile are required for https. Locations are relative to /home/config
+        # keyFile:  "certs/my_cert.key"
+        # certFile: "certs/my_cert.crt"
+    }
+
+    ## Metadata 
+    ## Providers (data producers or owners)
+    providers:{
+        noaa:{
+            name:"NOAA", url:"https://www.noaa.gov/"
+            # logo image is relative to /home/www
+            logo:"img/noaa.png"
+        }        
+    }
+
+    ## DataSets 
+    ## For each dataSet defined here, there should be a config file at /home/config/${dataSet-code}.hjson    
+    dataSets:{
+        #noaa-gfs4:{name:"NOAA GFS4", provider:"noaa"}
     }
 }

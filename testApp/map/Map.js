@@ -7,13 +7,10 @@ class Map extends ZCustomController {
         });
 
         this.baseLayer.addTo(this.map);
+    }
 
-        /*
-        this.konvaLeafletLayer = new KonvaLeafletLayer(this.map, 200, {point:{lat:-33.034517, lng:-71.591983}});
-        this.testVisualizer = new TestVisualizer({lat:-33.034517, lng:-71.591983});
-        this.konvaLeafletLayer.addVisualizer(this.testVisualizer);
-        this.konvaLeafletLayer.addTo(this.map);
-        */
+    resized() {
+        setTimeout(_ => this.map.invalidateSize(), 400);
     }
 }
 ZVC.export(Map)
