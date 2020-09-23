@@ -1,4 +1,7 @@
-# docker build -t geoos/geoserver:latest -t geoos/geoserver:0.34 .
+# docker build -t docker.homejota.net/geoos/geoserver:latest -t docker.homejota.net/geoos/geoserver:0.39 .
+# docker push docker.homejota.net/geoos/geoserver:latest
+
+# docker build -t geoos/geoserver:latest -t geoos/geoserver:0.35 .
 # docker push geoos/geoserver:latest
 
 FROM geoos/gdal-node14
