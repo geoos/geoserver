@@ -1,4 +1,4 @@
-# docker build -t docker.homejota.net/geoos/geoserver:latest -t docker.homejota.net/geoos/geoserver:0.40 .
+# docker build -t docker.homejota.net/geoos/geoserver:latest -t docker.homejota.net/geoos/geoserver:0.41 .
 # docker push docker.homejota.net/geoos/geoserver:latest
 
 # docker build -t geoos/geoserver:latest -t geoos/geoserver:0.35 .
