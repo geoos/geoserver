@@ -3,4 +3,4 @@ const importer = require("./lib/Importer")
 
 importer.init();
 log.info("GEOOS GEOServer initialized");
-console.log("GEOOS GEOServer is Running")
+console.log("GEOOS GEOServer [0.48] is Running")
