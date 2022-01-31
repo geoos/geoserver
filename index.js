@@ -1,4 +1,4 @@
-const version = "0.63";
+const version = "0.65";
 const log = require("./lib/Logs")
 const importer = require("./lib/Importer")
 
