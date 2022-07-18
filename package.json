@@ -24,10 +24,12 @@
   "dependencies": {
     "@turf/turf": "^5.1.6",
     "body-parser": "^1.19.0",
+    "eval": "^0.1.8",
     "express": "^4.17.1",
     "geojson-vt": "^3.2.1",
     "hjson": "^3.2.1",
-    "moment-timezone": "^0.5.31"
+    "moment-timezone": "^0.5.31",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
