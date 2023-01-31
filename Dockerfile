@@ -1,5 +1,5 @@
 # desde el M1
-# docker buildx build --push --platform linux/amd64 -t docker.homejota.net/geoos/geoserver:latest -t docker.homejota.net/geoos/geoserver:0.74 .
+# docker buildx build --push --platform linux/amd64 -t docker.homejota.net/geoos/geoserver:latest -t docker.homejota.net/geoos/geoserver:0.75 .
 
 FROM docker.homejota.net/geoos/gdal-node14-nco-cdo
 EXPOSE 8080
